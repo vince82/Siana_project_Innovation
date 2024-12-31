@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Modifier Informations - {{ component.name }}</title>
+        <link rel="stylesheet" href="{% static 'admin_page/modifier_info_style.css' %}">
+        <!-- Ajout des scripts Three.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    </head>
+    
+    
+    <body>
+    <header class="modifier-header">
+        <div class="header-content">
+            <img src="https://th.bing.com/th/id/OIP.Yvs2bEaFEUJCSJPXc10GLgAAAA?rs=1&pid=ImgDetMain" alt="Logo Entreprise" class="logo">
+            <h1>Modifier les Informations du Composant</h1>
+        </div>
+    </header>
+
+    <main class="modifier-container">
+        <!-- Section Nom -->
+        <section class="modifier-section">
+            <h2>Nom</h2>
+            <div class="section-content">
+                <span id="component-name" data-component-id="{{ component.id }}">Nom actuel : {{ component.name }}</span>
+                <button id="modify-name-btn">Modifier</button>
+            </div>
+        </section>
+
+<!-- Section Modèle 3D -->
+<section class="modifier-section">
+    <h2>Modèle 3D</h2>
+    <div class="section-content">
+        <div class="model-placeholder" id="model-container">
+            {% if model3d %}
+                <div id="3d-viewer" style="width: 100%; height: 400px;"></div>
+                <p>Modèle 3D actuel : {{ model3d.model3D.name }}</p>
+            {% else %}
+                <div id="3d-viewer" style="width: 100%; height: 400px; display: none;"></div>
+                <div class="empty-placeholder">[Espace pour le modèle 3D]</div>
+            {% endif %}
+        </div>
+        <button id="import-model-btn">Importer un modèle 3D</button>
+    </div>
+</section>
+        <!-- Section Description Technique et Rôle -->
+        <section class="modifier-section">
+            <h2>Description Technique et Rôle</h2>
+            <div id="description-container">
+                {% for paragraphe in paragraphes %}
+                    <div class="description-item" data-paragraphe-id="{{ paragraphe.id }}">
+                        <p>{{ paragraphe.description }}</p>
+                        <div class="description-actions">
+                            <button class="edit-btn">Modifier</button>
+                            <button class="add-image-btn">Ajouter une image</button>
+                            <button class="delete-btn">Supprimer</button>
+                        </div>
+                        <div class="paragraphe-images">
+                            {% for image in paragraphe.paragraphe_images.all %}
+                                <img src="{{ image.image.url }}" alt="Image du paragraphe">
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <button id="add-paragraph-btn">Ajouter un paragraphe</button>
+        </section>
+
+        <!-- Section Détails Techniques -->
+        <section class="modifier-section">
+            <h2>Détails Techniques</h2>
+            <table id="technical-details-table">
+                <thead>
+                    <tr>
+                        <th>Caractéristique</th>
+                        <th>Valeur</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in details %}
+                        <tr data-detail-id="{{ detail.id }}">
+                            <td>{{ detail.caractéristique }}</td>
+                            <td>{{ detail.valeur }}</td>
+                            <td>
+                                <button class="edit-detail-btn">Modifier</button>
+                                <button class="delete-detail-btn">Supprimer</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button id="add-detail-btn">Ajouter une caractéristique</button>
+        </section>
+
+        <!-- Section Documents Associés -->
+        <section class="modifier-section">
+            <h2>Documents Associés</h2>
+            <div id="documents-list">
+                {% for document in documents %}
+                    <div class="document-item" data-document-id="{{ document.id }}">
+                        <span>{{ document.document.name }}</span>
+                        <button class="delete-document-btn">Supprimer</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button id="add-document-btn">Ajouter un document (PDF)</button>
+        </section>
+
+        <!-- Section Vidéo -->
+        <section class="modifier-section">
+            <h2>Vidéo Démonstrative</h2>
+            <div class="video-container">
+                {% if videos %}
+                    {% for video in videos %}
+                        <video controls data-video-id="{{ video.id }}">
+                            <source src="{{ video.video.url }}" type="video/mp4">
+                            Votre navigateur ne supporte pas les vidéos HTML5.
+                        </video>
+                        <button class="delete-video-btn">Supprimer</button>
+                    {% endfor %}
+                {% else %}
+                    <div class="video-placeholder">[Aucune vidéo]</div>
+                {% endif %}
+                <button id="change-video-btn">{% if videos %}Changer{% else %}Ajouter{% endif %} la vidéo</button>
+            </div>
+        </section>
+
+        <div id="paragraph-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Ajouter un paragraphe</h2>
+                <textarea id="paragraph-text" rows="10" cols="50"></textarea>
+                <button id="save-paragraph-btn">Enregistrer</button>
+            </div>
+        </div>
+    </main>
+
+    {% csrf_token %}
+    <script src="{% static 'admin_page/component_details.js' %}"></script>
+</body>
+</html>

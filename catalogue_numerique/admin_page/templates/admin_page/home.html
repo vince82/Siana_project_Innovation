@@ -1,11 +1,66 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Administration</title>
+    <link rel="stylesheet" href="{% static 'admin_page/admin_style.css' %}">
 </head>
 <body>
-    Bienvenue
+    <!-- En-tête -->
+    <header class="admin-header">
+        <div class="header-content">
+            <img src="https://th.bing.com/th/id/OIP.Yvs2bEaFEUJCSJPXc10GLgAAAA?rs=1&pid=ImgDetMain" alt="Logo Entreprise" class="logo">
+            <h1>Panneau d'administration</h1>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <!-- Gestion des utilisateurs -->
+<!-- Dans votre section de gestion des utilisateurs -->
+<section class="user-management">
+    <h2>Gestion des utilisateurs</h2>
+    <button id="add-user-btn">Ajouter un utilisateur</button>
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>Nom et Prénom</th>
+                <th>E-mail</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="user-list">
+            {% for user in users %}
+            <tr data-user-id="{{ user.id }}">
+                <td class="user-name">{{ user.nom_prenom }}</td>
+                <td class="user-email">{{ user.email }}</td>
+                <td>
+                    <button class="edit-user-btn">✏️</button>
+                    <button class="delete-user-btn">🗑️</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+
+        <!-- Gestion des composants -->
+        {% csrf_token %}
+        <section class="component-management">
+            <h2>Gestion des composants</h2>
+            {% if not components %}
+                <button id="add-device-btn">Ajouter un appareil</button>
+            {% endif %}
+            <div id="tree-container">
+                <ul id="component-tree">
+                    {% include "admin_page/tree_component.html" %}
+                </ul>
+            </div>
+        </section>
+        </main>
+
+    <script src="{% static 'admin_page/admin_script.js' %}"></script>
 </body>
 </html>

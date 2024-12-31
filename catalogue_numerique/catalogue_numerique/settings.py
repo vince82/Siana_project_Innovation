@@ -118,9 +118,48 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+import os
 
+# Définition du chemin pour les fichiers statiques
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Assurez-vous que vous avez aussi ces paramètres
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
+
+
+# ... autres configurations ...
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Assurez-vous que ces dossiers existent
+UPLOAD_PATHS = {
+    'documents': os.path.join(MEDIA_ROOT, 'documents'),
+    'videos': os.path.join(MEDIA_ROOT, 'videos'),
+    'models3d': os.path.join(MEDIA_ROOT, 'models3d'),
+    'images': os.path.join(MEDIA_ROOT, 'images'),
+}
+
+FILE_UPLOAD_PERMISSIONS = 0o644
+
+# Configurations pour les fichiers uploadés
+ALLOWED_EXTENSIONS = {
+    'model3d': ['.glb', '.gltf', '.obj', '.fbx', '.dae', '.3ds', '.blend'],
+    'document': ['.pdf', '.doc', '.docx'],
+    'video': ['.mp4', '.webm', '.ogg'],
+    'image': ['.jpg', '.jpeg', '.png', '.gif']
+}
+for path in UPLOAD_PATHS.values():
+    os.makedirs(path, exist_ok=True)
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# settings.py
+LOGIN_URL = 'admin_login'  # URL de votre page de connexion
+LOGIN_REDIRECT_URL = 'admin_home'  # URL après connexion réussie

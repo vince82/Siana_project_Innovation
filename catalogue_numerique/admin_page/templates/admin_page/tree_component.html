@@ -1,0 +1,22 @@
+{% load static %}
+<!-- Créez un fichier tree_component.html -->
+{% comment %} admin_page/templates/admin_page/tree_component.html {% endcomment %}
+{% for component in components %}
+    <li data-component-id="{{ component.id }}" class="component-item">
+        <div class="component-content">
+            <a href="{% url 'component_details' component_id=component.id %}" class="component-name-link">
+                <span class="component-name">{{ component.name }}</span>
+            </a>
+            <div class="component-buttons">
+                <button class="add-child-btn">+ Ajouter</button>
+                <button class="edit-btn">✏️ Modifier</button>
+                <button class="delete-btn">🗑️ Supprimer</button>
+            </div>
+        </div>
+        {% if component.enfants.all %}
+            <ul class="child-components">
+                {% include "admin_page/tree_component.html" with components=component.enfants.all %}
+            </ul>
+        {% endif %}
+    </li>
+{% endfor %}

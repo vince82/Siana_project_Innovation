@@ -10,6 +10,7 @@ class admin_user(models.Model):
         return f"{self.nom_prenom} ({self.email})"
 
 
+
 # Modèle des composants
 class Component(models.Model):
     name = models.CharField(max_length=100)  # Nom plus long pour plus de flexibilité
