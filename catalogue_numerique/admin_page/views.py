@@ -159,40 +159,26 @@ from django.db.models import Max  # Ajoutez cet import en haut
 @csrf_exempt
 @require_http_methods(["POST"])
 def add_paragraph(request):
-    print("Réception d'une requête pour add_paragraph")  # Debug log
+    print("=== Début add_paragraph ===")
     try:
         data = json.loads(request.body)
-        print("Données reçues:", data)  # Debug log
-        
+        print("Données reçues:", data)
         component_id = data.get('component_id')
         description = data.get('description')
         
-        if not all([component_id, description]):
-            print("Données manquantes")  # Debug log
-            return JsonResponse({'error': 'component_id et description sont requis'}, status=400)
-            
-        component = Component.objects.get(id=component_id)
-        
-        # Obtenir le dernier ordre
-        last_order = Component_description_technique_paragraphe.objects.filter(
-            component=component
-        ).aggregate(Max('order'))['order__max'] or 0
-        
+        component = get_object_or_404(Component, id=component_id)
         paragraph = Component_description_technique_paragraphe.objects.create(
             component=component,
-            description=description,
-            order=last_order + 1
+            description=description
         )
         
-        print("Paragraphe créé avec succès:", paragraph.id)  # Debug log
+        print("Paragraphe créé:", paragraph.id)
         return JsonResponse({
             'id': paragraph.id,
             'description': paragraph.description
         })
-    except Component.DoesNotExist:
-        return JsonResponse({'error': 'Composant non trouvé'}, status=404)
     except Exception as e:
-        print("Erreur:", str(e))  # Debug log
+        print("Erreur:", str(e))
         return JsonResponse({'error': str(e)}, status=400)
 
 
@@ -237,7 +223,8 @@ def delete_paragraph(request, paragraph_id):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
+    
+    
 @csrf_exempt
 @require_http_methods(["POST"])
 def add_technical_detail(request):
@@ -246,22 +233,28 @@ def add_technical_detail(request):
         component_id = data.get('component_id')
         caractéristique = data.get('caractéristique')
         valeur = data.get('valeur')
-        
+
+        if not all([component_id, caractéristique, valeur]):
+            return JsonResponse({'error': 'Tous les champs sont requis'}, status=400)
+
         component = get_object_or_404(Component, id=component_id)
         detail = Component_details_technique.objects.create(
             component=component,
             caractéristique=caractéristique,
             valeur=valeur
         )
-        
-        # Retourner les données nécessaires pour créer la ligne dans le tableau
+
         return JsonResponse({
             'id': detail.id,
             'caractéristique': detail.caractéristique,
             'valeur': detail.valeur
         })
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Données JSON invalides'}, status=400)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'error': str(e)}, status=400)    
+    
+    
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -269,18 +262,25 @@ def edit_technical_detail(request, detail_id):
     try:
         data = json.loads(request.body)
         detail = get_object_or_404(Component_details_technique, id=detail_id)
+
+        # Modifier les champs s'ils sont présents dans la requête
         if 'caractéristique' in data:
             detail.caractéristique = data['caractéristique']
         if 'valeur' in data:
             detail.valeur = data['valeur']
+
         detail.save()
+
         return JsonResponse({
             'id': detail.id,
             'caractéristique': detail.caractéristique,
             'valeur': detail.valeur
         })
+    except Component_details_technique.DoesNotExist:
+        return JsonResponse({'error': 'Caractéristique technique introuvable'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
 
 @csrf_exempt
 @require_http_methods(["DELETE"])
@@ -302,15 +302,27 @@ def delete_document(request, document_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+
+import logging
+logger = logging.getLogger(__name__)
+
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def delete_video(request, video_id):
     try:
+        logger.info(f"Tentative de suppression de la vidéo ID={video_id}")
         video = get_object_or_404(Component_video, id=video_id)
+        logger.info(f"Vidéo trouvée : {video.video.name}")
+        video.video.delete(save=False)
         video.delete()
         return JsonResponse({'success': True})
+    except Component_video.DoesNotExist:
+        logger.error(f"Vidéo introuvable ID={video_id}")
+        return JsonResponse({'error': 'Vidéo introuvable'}, status=404)
     except Exception as e:
+        logger.error(f"Erreur de suppression : {str(e)}")
         return JsonResponse({'error': str(e)}, status=400)
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -318,27 +330,27 @@ def upload_3d_model(request):
     try:
         model3d_file = request.FILES.get('model3D')
         component_id = request.POST.get('component_id')
-        
+
         if not all([model3d_file, component_id]):
             return JsonResponse({'error': 'Fichier et ID du composant requis'}, status=400)
-            
+
         component = get_object_or_404(Component, id=component_id)
-        
+
         # Supprimer l'ancien modèle s'il existe
         Component_model3D.objects.filter(component=component).delete()
-        
+
+        # Enregistrer le fichier
         model3d = Component_model3D.objects.create(
             component=component,
             model3D=model3d_file
         )
-        
+
         return JsonResponse({
             'id': model3d.id,
             'filename': model3d.model3D.name
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -368,23 +380,27 @@ def upload_video(request):
     try:
         video_file = request.FILES.get('video')
         component_id = request.POST.get('component_id')
-        
+
         if not all([video_file, component_id]):
             return JsonResponse({'error': 'Vidéo et ID du composant requis'}, status=400)
-            
+
         component = get_object_or_404(Component, id=component_id)
+
+        # Supprimez les vidéos existantes pour ce composant
+        Component_video.objects.filter(component=component).delete()
+
+        # Ajoutez la nouvelle vidéo
         video = Component_video.objects.create(
             component=component,
             video=video_file
         )
-        
+
         return JsonResponse({
             'id': video.id,
             'url': video.video.url
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
 
 
 # admin_page/views.py

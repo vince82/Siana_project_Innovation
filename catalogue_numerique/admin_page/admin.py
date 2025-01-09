@@ -32,8 +32,7 @@ class ParagraphImageAdmin(admin.ModelAdmin):
 
 @admin.register(Component_model3D)
 class ComponentModel3DAdmin(admin.ModelAdmin):
-    list_display = ('component', 'model3D')
-
+    list_display = ['__str__']  # ou juste utilisez l'ID par défaut
 @admin.register(Component_video)
 class ComponentVideoAdmin(admin.ModelAdmin):
     list_display = ('component', 'video')

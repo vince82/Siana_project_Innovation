@@ -9,6 +9,9 @@
         <!-- Ajout des scripts Three.js -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     </head>
     
     
@@ -116,11 +119,13 @@
             <div class="video-container">
                 {% if videos %}
                     {% for video in videos %}
-                        <video controls data-video-id="{{ video.id }}">
-                            <source src="{{ video.video.url }}" type="video/mp4">
-                            Votre navigateur ne supporte pas les vidéos HTML5.
-                        </video>
-                        <button class="delete-video-btn">Supprimer</button>
+                        <div class="video-wrapper">
+                            <video controls data-video-id="{{ video.id }}">
+                                <source src="{{ video.video.url }}" type="video/mp4">
+                                Votre navigateur ne supporte pas les vidéos HTML5.
+                            </video>
+                            <button class="delete-video-btn">Supprimer</button>
+                        </div>
                     {% endfor %}
                 {% else %}
                     <div class="video-placeholder">[Aucune vidéo]</div>
@@ -128,6 +133,7 @@
                 <button id="change-video-btn">{% if videos %}Changer{% else %}Ajouter{% endif %} la vidéo</button>
             </div>
         </section>
+        
 
         <div id="paragraph-modal" class="modal">
             <div class="modal-content">

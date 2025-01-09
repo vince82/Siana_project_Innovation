@@ -70,18 +70,20 @@ class paragraphe_images(models.Model):
 
 
 # Modèles 3D associés aux composants
+from django.core.validators import FileExtensionValidator
 class Component_model3D(models.Model):
     component = models.ForeignKey(
         Component,
         on_delete=models.CASCADE,
         related_name="appareil_models3d"
     )
-    model3D = models.FileField(upload_to="models3d/")
+    model3D = models.FileField(
+        upload_to="models3d/",
+        validators=[FileExtensionValidator(allowed_extensions=['glb', 'gltf', 'blend', 'fbx', 'obj'])]
+    )
 
     def __str__(self):
         return f"Modèle 3D - {self.component.name}"
-
-
 # Vidéos associées aux composants
 class Component_video(models.Model):
     component = models.ForeignKey(
