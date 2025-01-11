@@ -1,0 +1,162 @@
+class Model3DViewer {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.controls = null;
+        this.model = null;
+        this.setupViewer();
+    }
+
+    setupViewer() {
+        // Configuration du renderer
+        this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+        this.renderer.setClearColor(0xf0f0f0);
+        this.container.appendChild(this.renderer.domElement);
+
+        // Configuration de la caméra
+        this.camera.position.z = 5;
+
+        // Ajout des contrôles OrbitControls
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
+
+        // Éclairage
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(0, 1, 0);
+        this.scene.add(ambientLight, directionalLight);
+
+        // Animation
+        this.animate();
+
+        // Gestion du redimensionnement
+        window.addEventListener('resize', () => this.onWindowResize());
+    }
+
+    loadModel(url) {
+        // Suppression du modèle existant si présent
+        if (this.model) {
+            this.scene.remove(this.model);
+            this.model = null;
+        }
+
+        let loader;
+        const extension = url.split('.').pop().toLowerCase();
+        
+        switch(extension) {
+            case 'blend':
+                loader = new THREE.BlendLoader();
+                break;
+            case 'fbx':
+                loader = new THREE.FBXLoader();
+                break;
+            case 'obj':
+                loader = new THREE.OBJLoader();
+                break;
+            default:
+                loader = new THREE.GLTFLoader();
+        }
+        
+        loader.load(url, (gltf) => {
+            this.model = gltf.scene;
+            
+            // Centrer et ajuster l'échelle du modèle
+            const box = new THREE.Box3().setFromObject(this.model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 2 / maxDim;
+            this.model.scale.multiplyScalar(scale);
+            
+            this.model.position.sub(center.multiplyScalar(scale));
+            
+            this.scene.add(this.model);
+        }, 
+        (xhr) => {
+            console.log((xhr.loaded / xhr.total * 100) + '% chargé');
+        },
+        (error) => {
+            console.error('Erreur de chargement du modèle:', error);
+        });
+    }
+
+    animate() {
+        requestAnimationFrame(() => this.animate());
+        this.controls.update();
+        this.renderer.render(this.scene, this.camera);
+    }
+
+    onWindowResize() {
+        this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+    }
+
+    dispose() {
+        this.controls.dispose();
+        this.renderer.dispose();
+    }
+}
+
+
+
+
+
+
+
+
+
+// Initialisation du viewer
+document.addEventListener('DOMContentLoaded', () => {
+    const viewer = new Model3DViewer('3d-viewer');
+    window.viewer3D = viewer;  // Pour accès global
+
+    // Gestion du téléchargement de modèle
+    const importModelBtn = document.getElementById('import-model-btn');
+    if (importModelBtn) {
+        importModelBtn.addEventListener('click', async () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.glb,.gltf,.blend,.fbx,.obj';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('model3D', file);
+                    formData.append('component_id', componentId);
+
+                    try {
+                        const response = await fetch('/manage/upload-3d-model/', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': getCookie('csrftoken')
+                            },
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            document.getElementById('3d-viewer').style.display = 'block';
+                            viewer.loadModel(URL.createObjectURL(file));
+                        }
+                    } catch (error) {
+                        alert('Erreur lors du téléversement du modèle 3D');
+                    }
+                }
+            };
+            input.click();
+        });
+    }
+
+    // Charger le modèle existant s'il y en a un
+    const modelContainer = document.getElementById('model-container');
+    if (modelContainer.dataset.modelUrl) {
+        document.getElementById('3d-viewer').style.display = 'block';
+        viewer.loadModel(modelContainer.dataset.modelUrl);
+    }
+});
