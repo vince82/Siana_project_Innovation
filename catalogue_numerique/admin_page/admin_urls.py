@@ -16,33 +16,41 @@ urlpatterns = [
 ]
 
 urlpatterns = urlpatterns+[
-    path('component/<int:component_id>/details/', views.component_details_view, name='component_details'),
+    # Affichage des détails du composant
+    path('manage/component/<int:component_id>/details/', views.component_details_view, name='component_details'),
 
-    # Modification du nom du composant
-    path('edit-component/<int:component_id>/', views.edit_component, name='edit_component'),
+    # Gestion du nom du composant
+    path('manage/edit-component/<int:component_id>/', views.edit_component, name='edit_component'),
 
     # Gestion des modèles 3D
-    path('upload-3d-model/', views.upload_3d_model, name='upload_3d_model'),
-    path('delete-3d-model/<int:model_id>/', views.delete_3d_model, name='delete_3d_model'),
+    path('manage/upload-3d-model/', views.upload_3d_model, name='upload_3d_model'),
+    path('manage/delete-3d-model/<int:model_id>/', views.delete_3d_model, name='delete_3d_model'),
 
     # Gestion des paragraphes
-    path('add-paragraph/', views.add_paragraph, name='add_paragraph'),
-    path('edit-paragraph/<int:paragraph_id>/', views.edit_paragraph, name='edit_paragraph'),
-    path('delete-paragraph/<int:paragraph_id>/', views.delete_paragraph, name='delete_paragraph'),
-    path('add-image-to-paragraph/<int:paragraph_id>/', views.add_image_to_paragraph, name='add_image_to_paragraph'),
-    path('replace-image/<int:image_id>/', views.replace_image, name='replace_image'),
-    path('delete-image/<int:image_id>/', views.delete_image, name='delete_image'),
+    path('manage/add-paragraph/', views.add_paragraph, name='add_paragraph'),
+    path('manage/edit-paragraph/<int:paragraph_id>/', views.edit_paragraph, name='edit_paragraph'),
+    path('manage/delete-paragraph/<int:paragraph_id>/', views.delete_paragraph, name='delete_paragraph'),
+
+    # Gestion des images des paragraphes
+    path('manage/add-image-to-paragraph/<int:paragraph_id>/', views.add_image_to_paragraph, name='add_image_to_paragraph'),
+    path('manage/replace-image/<int:image_id>/', views.replace_image, name='replace_image'),
+    path('manage/delete-image/<int:image_id>/', views.delete_image, name='delete_image'),
+
+    # Gestion des images associées aux composants
+    path('manage/upload-component-image/<int:component_id>/', views.upload_component_image, name='upload_component_image'),
+    path('manage/delete-component-image/<int:image_id>/', views.delete_component_image, name='delete_component_image'),
 
     # Gestion des détails techniques
-    path('add-technical-detail/', views.add_technical_detail, name='add_technical_detail'),
-    path('edit-technical-detail/<int:detail_id>/', views.edit_technical_detail, name='edit_technical_detail'),
-    path('delete-technical-detail/<int:detail_id>/', views.delete_technical_detail, name='delete_technical_detail'),
+    path('manage/add-technical-detail/', views.add_technical_detail, name='add_technical_detail'),
+    path('manage/edit-technical-detail/<int:detail_id>/', views.edit_technical_detail, name='edit_technical_detail'),
+    path('manage/delete-technical-detail/<int:detail_id>/', views.delete_technical_detail, name='delete_technical_detail'),
 
     # Gestion des documents
-    path('upload-document/', views.upload_document, name='upload_document'),
-    path('delete-document/<int:document_id>/', views.delete_document, name='delete_document'),
+    path('manage/upload-document/', views.upload_document, name='upload_document'),
+    path('manage/delete-document/<int:document_id>/', views.delete_document, name='delete_document'),
 
     # Gestion des vidéos
-    path('upload-video/', views.upload_video, name='upload_video'),
-    path('delete-video/<int:video_id>/', views.delete_video, name='delete_video'),
+    path('manage/upload-video/', views.upload_video, name='upload_video'),
+    path('manage/delete-video/<int:video_id>/', views.delete_video, name='delete_video'),
+
 ]

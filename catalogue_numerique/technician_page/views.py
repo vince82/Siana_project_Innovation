@@ -68,12 +68,29 @@ def get_component_3d(request, component_id):
     })
 
 
-# Fiche technique d'un composant
+from django.shortcuts import render, get_object_or_404
+from admin_page.models import Component, Component_model3D, Component_description_technique_paragraphe, Component_details_technique, Component_document, Component_video
+
 def component_technical_sheet(request, component_id):
-    """Afficher la fiche technique d'un composant."""
+    """Afficher les détails d'un composant pour le technicien."""
+    # Récupérer le composant principal
     component = get_object_or_404(Component, id=component_id)
+
+    # Charger les informations associées au composant
+    model3d = component.appareil_models3d.first()  # Premier modèle 3D associé
+    paragraphs = Component_description_technique_paragraphe.objects.filter(component=component).order_by('order')
+    details = Component_details_technique.objects.filter(component=component)
+    documents = Component_document.objects.filter(component=component)
+    videos = Component_video.objects.filter(component=component)
+
+    # Passer les informations au template
     return render(request, 'technician_page/component_technical_sheet.html', {
         'component': component,
+        'model3d': model3d,
+        'paragraphs': paragraphs,
+        'details': details,
+        'documents': documents,
+        'videos': videos,
     })
 
 

@@ -27,6 +27,27 @@
         <iframe name="name-response-frame" style="display:none;"></iframe>
     </section>
 
+    <!-- Section Images du Composant -->
+    <section class="modifier-section">
+        <h2>Images du composant</h2>
+        <div id="images-container">
+            {% for image in component.component_images.all %}
+                <div class="image-item">
+                    <img src="{{ image.image.url }}" alt="Image associée">
+                    <form method="POST" action="{% url 'delete_component_image' image.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn">Supprimer</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+        <form method="POST" action="{% url 'upload_component_image' component.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="images" accept="image/*" multiple required>
+            <button type="submit">Ajouter des images</button>
+        </form>
+    </section>
+
     <!-- Section Modèle 3D -->
     <section class="modifier-section">
         <h2>Modèle 3D</h2>
@@ -54,24 +75,19 @@
         <h2>Description technique</h2>
         <div id="paragraph-container">
             {% for paragraph in paragraphs %}
-                <div class="paragraph-item" data-paragraph-id="{{ paragraph.id }}">
+                <div class="paragraph-item">
                     <form method="POST" action="{% url 'edit_paragraph' paragraph.id %}" target="paragraph-response-frame">
                         {% csrf_token %}
                         <textarea name="description" required>{{ paragraph.description }}</textarea>
                         <button type="submit" class="modify-btn">Modifier</button>
                         <button type="submit" formaction="{% url 'delete_paragraph' paragraph.id %}" class="delete-btn">Supprimer</button>
                     </form>
-
-                    <!-- Images associées -->
+                    
+                    <!-- Images associées au paragraphe -->
                     <div class="images">
                         {% for image in paragraph.paragraphe_images.all %}
                             <div class="image-item">
                                 <img src="{{ image.image.url }}" alt="Image associée">
-                                <form method="POST" action="{% url 'replace_image' image.id %}" enctype="multipart/form-data" target="paragraph-response-frame">
-                                    {% csrf_token %}
-                                    <input type="file" name="image" accept="image/*" required>
-                                    <button type="submit" class="modify-btn">Remplacer</button>
-                                </form>
                                 <form method="POST" action="{% url 'delete_image' image.id %}" target="paragraph-response-frame">
                                     {% csrf_token %}
                                     <button type="submit" class="delete-btn">Supprimer</button>
@@ -80,22 +96,23 @@
                         {% endfor %}
                     </div>
 
-                    <!-- Ajouter une nouvelle image -->
+                    <!-- Ajouter des images au paragraphe -->
                     <form method="POST" action="{% url 'add_image_to_paragraph' paragraph.id %}" enctype="multipart/form-data" target="paragraph-response-frame">
                         {% csrf_token %}
-                        <input type="file" name="image" accept="image/*" required>
-                        <button type="submit">Ajouter une image</button>
+                        <input type="file" name="image" accept="image/*" multiple required>
+                        <button type="submit">Ajouter des images</button>
                     </form>
                 </div>
             {% endfor %}
         </div>
+
+        <!-- Ajouter un nouveau paragraphe -->
         <form method="POST" action="{% url 'add_paragraph' %}" target="paragraph-response-frame">
             {% csrf_token %}
             <input type="hidden" name="component_id" value="{{ component.id }}">
             <textarea name="description" placeholder="Nouvelle description" required></textarea>
             <button type="submit">Ajouter un paragraphe</button>
         </form>
-        <iframe name="paragraph-response-frame" style="display:none;"></iframe>
     </section>
 
     <!-- Section Détails Techniques -->
@@ -126,51 +143,26 @@
             <input type="hidden" name="component_id" value="{{ component.id }}">
             <input type="text" name="caractéristique" placeholder="Caractéristique" required>
             <input type="text" name="valeur" placeholder="Valeur" required>
-            <button type="submit">Ajouter</button>
+            <button type="submit">Ajouter un détail technique</button>
         </form>
         <iframe name="details-response-frame" style="display:none;"></iframe>
     </section>
 
-    <!-- Section Documents Associés -->
+    <!-- Section Vidéos Démonstratives -->
     <section class="modifier-section">
-        <h2>Documents associés</h2>
-        <div id="documents-container">
-            {% for document in documents %}
-                <div class="document-item" data-document-id="{{ document.id }}">
-                    <a href="{{ document.document.url }}" target="_blank" rel="noopener noreferrer">
-                        {{ document.document.name }}
-                    </a>
-                    <form method="POST" action="{% url 'delete_document' document.id %}" target="document-response-frame">
-                        {% csrf_token %}
-                        <button type="submit" class="delete-btn">Supprimer</button>
-                    </form>
-                </div>
-            {% endfor %}
-        </div>
-        <form method="POST" action="{% url 'upload_document' %}" enctype="multipart/form-data" target="document-response-frame">
-            {% csrf_token %}
-            <input type="hidden" name="component_id" value="{{ component.id }}">
-            <input type="file" name="document" accept=".pdf" multiple required>
-            <button type="submit">Ajouter des documents</button>
-        </form>
-        <iframe name="document-response-frame" style="display:none;"></iframe>
-    </section>
-
-    <!-- Section Vidéo Démonstrative -->
-    <section class="modifier-section">
-        <h2>Vidéo Démonstrative</h2>
+        <h2>Vidéos Démonstratives</h2>
         <div id="video-container">
             {% if videos %}
                 {% for video in videos %}
-                    <div class="video-item" data-video-id="{{ video.id }}">
+                    <div class="video-item">
                         <p>{{ video.video.name }}</p>
                         <video controls>
                             <source src="{{ video.video.url }}" type="video/mp4">
                             Votre navigateur ne supporte pas la lecture des vidéos.
                         </video>
-                        <form method="POST" action="{% url 'delete_video' video.id %}" target="video-response-frame">
+                        <form method="POST" action="{% url 'delete_video' video.id %}">
                             {% csrf_token %}
-                            <button type="submit">Supprimer</button>
+                            <button type="submit" class="delete-btn">Supprimer</button>
                         </form>
                     </div>
                 {% endfor %}
@@ -182,14 +174,11 @@
             {% csrf_token %}
             <input type="hidden" name="component_id" value="{{ component.id }}">
             <input type="file" name="video" accept="video/*" required>
-            <button type="submit">Ajouter</button>
+            <button type="submit">Ajouter une vidéo</button>
         </form>
         <iframe name="video-response-frame" style="display:none;"></iframe>
     </section>
 
 </main>
-
-<!-- JavaScript -->
-<script src="{% static 'admin_page/component_details.js' %}"></script>
 </body>
 </html>

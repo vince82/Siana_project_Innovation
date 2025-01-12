@@ -401,3 +401,24 @@ def delete_video(request, video_id):
     component_id = video.component.id
     video.delete()
     return redirect('component_details', component_id=component_id)
+
+
+from .models import  ComponentImage
+
+def upload_component_image(request, component_id):
+    """Télécharge une ou plusieurs images pour un composant."""
+    component = get_object_or_404(Component, id=component_id)
+
+    if request.method == "POST":
+        for image in request.FILES.getlist('images'):
+            ComponentImage.objects.create(component=component, image=image)
+        messages.success(request, "Images ajoutées avec succès.")
+    return redirect('component_details', component_id=component.id)
+
+def delete_component_image(request, image_id):
+    """Supprime une image associée à un composant."""
+    image = get_object_or_404(ComponentImage, id=image_id)
+    component_id = image.component.id
+    image.delete()
+    messages.success(request, "Image supprimée avec succès.")
+    return redirect('component_details', component_id=component_id)
