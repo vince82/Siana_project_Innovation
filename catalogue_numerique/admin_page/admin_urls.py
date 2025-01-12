@@ -16,7 +16,6 @@ urlpatterns = [
 ]
 
 urlpatterns = urlpatterns+[
-    # Afficher les détails du composant
     path('component/<int:component_id>/details/', views.component_details_view, name='component_details'),
 
     # Modification du nom du composant
@@ -46,5 +45,4 @@ urlpatterns = urlpatterns+[
     # Gestion des vidéos
     path('upload-video/', views.upload_video, name='upload_video'),
     path('delete-video/<int:video_id>/', views.delete_video, name='delete_video'),
-
 ]

@@ -39,7 +39,6 @@ def logout_view(request):
     return redirect('admin_login')  # Redirigez vers la page de connexion
 
 
-@login_required
 def home_view(request):
     root_components = Component.objects.filter(parent=None)
     users = technician_user.objects.all()
