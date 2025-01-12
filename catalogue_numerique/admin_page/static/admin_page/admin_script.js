@@ -1,13 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Gestion des composants (existant, ne pas toucher)
     const componentTree = document.getElementById("component-tree");
     const addDeviceBtn = document.getElementById("add-device-btn");
 
-    // Fonction pour initialiser les gestionnaires d'événements sur un nœud existant
     function initializeExistingNode(node) {
         const componentId = node.dataset.componentId;
         const componentName = node.querySelector('.component-name').textContent;
 
-        // Gestionnaire pour ajouter un sous-composant
         const addChildBtn = node.querySelector('.add-child-btn');
         if (addChildBtn) {
             addChildBtn.addEventListener('click', async () => {
@@ -32,8 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const childComponent = await response.json();
                         const childNode = createNewNode(childComponent.name, childComponent.id);
-                        
-                        // Trouver ou créer la liste des enfants
+
                         let childList = node.querySelector('.child-components');
                         if (!childList) {
                             childList = document.createElement('ul');
@@ -49,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Gestionnaire pour modifier
         const editBtn = node.querySelector('.edit-btn');
         if (editBtn) {
             editBtn.addEventListener('click', async () => {
@@ -78,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Gestionnaire pour supprimer
         const deleteBtn = node.querySelector('.delete-btn');
         if (deleteBtn) {
             deleteBtn.addEventListener('click', async () => {
@@ -97,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         node.remove();
 
-                        // Si c'était le dernier composant, recharger la page
                         if (componentTree.children.length === 0) {
                             window.location.reload();
                         }
@@ -110,12 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initialiser les gestionnaires pour tous les composants existants
     document.querySelectorAll('[data-component-id]').forEach(node => {
         initializeExistingNode(node);
     });
 
-    // Fonction pour créer un nouveau nœud
     function createNewNode(name, id) {
         const li = document.createElement('li');
         li.className = 'component-item';
@@ -130,12 +123,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
+
         initializeExistingNode(li);
         return li;
     }
 
-    // Gestionnaire pour ajouter un appareil principal
     if (addDeviceBtn) {
         addDeviceBtn.addEventListener('click', async () => {
             const deviceName = prompt("Nom de l'appareil (ex: Train, Avion) :");
@@ -183,67 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return cookieValue;
     }
-});
 
-
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Fonction getCookie à déclarer avant toute utilisation
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    // Gestion des utilisateurs
-    const addUserBtn = document.getElementById('add-user-btn');
+    // Gestion des utilisateurs (nouveau code)
+    const csrfToken = getCookie('csrftoken');
     const userList = document.getElementById('user-list');
-
-    if (addUserBtn) {
-        addUserBtn.addEventListener('click', async () => {
-            // Créer un formulaire plus élaboré qu'un simple prompt
-            const userData = {
-                nom_prenom: prompt("Nom et prénom :"),
-                email: prompt("Email :"),
-                password: prompt("Mot de passe :")
-            };
-
-            if (userData.nom_prenom && userData.email && userData.password) {
-                try {
-                    const response = await fetch('/manage/add-user/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken')
-                        },
-                        body: JSON.stringify(userData)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Erreur serveur');
-                    }
-
-                    const newUser = await response.json();
-                    const newRow = createUserRow(newUser);
-                    userList.appendChild(newRow);
-                } catch (error) {
-                    alert('Erreur lors de l\'ajout de l\'utilisateur : ' + error.message);
-                }
-            }
-        });
-    }
+    const addUserBtn = document.getElementById('add-user-btn');
 
     function createUserRow(user) {
         const tr = document.createElement('tr');
@@ -257,77 +193,108 @@ document.addEventListener('DOMContentLoaded', () => {
             </td>
         `;
 
-        // Ajouter les gestionnaires d'événements
-        const editBtn = tr.querySelector('.edit-user-btn');
-        const deleteBtn = tr.querySelector('.delete-user-btn');
-
-        editBtn.addEventListener('click', () => handleEditUser(tr));
-        deleteBtn.addEventListener('click', () => handleDeleteUser(tr));
+        tr.querySelector('.edit-user-btn').addEventListener('click', () => handleEditUser(tr));
+        tr.querySelector('.delete-user-btn').addEventListener('click', () => handleDeleteUser(tr));
 
         return tr;
     }
+
+    addUserBtn?.addEventListener('click', async () => {
+        const nom_prenom = prompt('Nom et prénom :');
+        const email = prompt('Email :');
+        const password = prompt('Mot de passe :');
+
+        if (!nom_prenom || !email || !password) {
+            alert('Tous les champs sont obligatoires.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/add-user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ nom_prenom, email, password }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur serveur');
+            }
+
+            const newUser = await response.json();
+            userList.appendChild(createUserRow(newUser));
+        } catch (error) {
+            alert(`Erreur lors de l'ajout de l'utilisateur : ${error.message}`);
+        }
+    });
 
     async function handleEditUser(tr) {
         const userId = tr.dataset.userId;
         const currentName = tr.querySelector('.user-name').textContent;
         const currentEmail = tr.querySelector('.user-email').textContent;
 
-        const newData = {
-            nom_prenom: prompt("Nouveau nom et prénom :", currentName),
-            email: prompt("Nouvel email :", currentEmail),
-            password: prompt("Nouveau mot de passe (laissez vide pour ne pas changer):")
-        };
+        const nom_prenom = prompt('Nouveau nom et prénom :', currentName);
+        const email = prompt('Nouvel email :', currentEmail);
+        const password = prompt('Nouveau mot de passe (laisser vide pour ne pas changer) :');
 
-        // Ne pas envoyer le mot de passe s'il est vide
-        if (!newData.password) delete newData.password;
+        if (!nom_prenom || !email) {
+            alert('Le nom et l\'email sont obligatoires.');
+            return;
+        }
 
-        if (newData.nom_prenom && newData.email) {
-            try {
-                const response = await fetch(`/manage/edit-user/${userId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify(newData)
-                });
+        try {
+            const response = await fetch(`/edit-user/${userId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ nom_prenom, email, password }),
+            });
 
-                if (!response.ok) throw new Error('Erreur serveur');
-
-                tr.querySelector('.user-name').textContent = newData.nom_prenom;
-                tr.querySelector('.user-email').textContent = newData.email;
-            } catch (error) {
-                alert('Erreur lors de la modification : ' + error.message);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur serveur');
             }
+
+            tr.querySelector('.user-name').textContent = nom_prenom;
+            tr.querySelector('.user-email').textContent = email;
+        } catch (error) {
+            alert(`Erreur lors de la modification : ${error.message}`);
         }
     }
 
     async function handleDeleteUser(tr) {
         const userId = tr.dataset.userId;
-        if (confirm('Voulez-vous vraiment supprimer cet utilisateur ?')) {
-            try {
-                const response = await fetch(`/manage/delete-user/${userId}/`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken')
-                    }
-                });
 
-                if (!response.ok) throw new Error('Erreur serveur');
+        if (!confirm('Voulez-vous vraiment supprimer cet utilisateur ?')) {
+            return;
+        }
 
-                tr.remove();
-            } catch (error) {
-                alert('Erreur lors de la suppression : ' + error.message);
+        try {
+            const response = await fetch(`/delete-user/${userId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur serveur');
             }
+
+            tr.remove();
+        } catch (error) {
+            alert(`Erreur lors de la suppression : ${error.message}`);
         }
     }
 
-    // Attacher les gestionnaires aux boutons existants
-    document.querySelectorAll('[data-user-id]').forEach(tr => {
-        const editBtn = tr.querySelector('.edit-user-btn');
-        const deleteBtn = tr.querySelector('.delete-user-btn');
-
-        if (editBtn) editBtn.addEventListener('click', () => handleEditUser(tr));
-        if (deleteBtn) deleteBtn.addEventListener('click', () => handleDeleteUser(tr));
+    document.querySelectorAll('[data-user-id]').forEach((tr) => {
+        tr.querySelector('.edit-user-btn')?.addEventListener('click', () => handleEditUser(tr));
+        tr.querySelector('.delete-user-btn')?.addEventListener('click', () => handleDeleteUser(tr));
     });
 });
