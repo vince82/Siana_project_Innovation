@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - Catalogue Interactif</title>
+    
+    <!-- Lien vers le style CSS -->
+    <link rel="stylesheet" href="{% static 'technician_page/style.css' %}">
+    
+    <!-- Lien vers le script pour la balise model-viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.0.1/model-viewer.min.js"></script>
+    
+    <!-- Script JavaScript pour les interactions -->
+    <script src="{% static 'technician_page/script.js' %}" defer></script>
+</head>
+<body>
+<header class="header">
+    <div class="logo">
+        <img src="https://th.bing.com/th/id/OIP.Yvs2bEaFEUJCSJPXc10GLgAAAA?rs=1&pid=ImgDetMain" alt="Logo Entreprise" class="logo">
+        <h1>Catalogue Interactif</h1>
+    </div>
+    <div class="navigation">
+        <input type="text" id="search-bar" placeholder="Recherche de composant">
+        <div id="search-results"></div> <!-- Liste déroulante pour les résultats de recherche -->
+        <div class="icons">
+            <a href="#"><img src="https://th.bing.com/th/id/OIP.os7uREZBLyoK_TY0AuFkoAHaHa?rs=1&pid=ImgDetMain" alt="Icône caméra" class="icon"></a>
+            <a href="#"><img src="https://th.bing.com/th/id/OIP.jO12HDqKTbrBYUQ6x5KyeAHaHa?rs=1&pid=ImgDetMain" alt="Icône chatbot" class="icon"></a>
+        </div>
+    </div>
+</header>
+<div class="main-container">
+    <!-- Menu latéral -->
+    <aside class="sidebar">
+        <ul class="tree-menu">
+            {% for component in components %}
+                {% if component.parent is None %}
+                    <li>
+                        <span class="tree-item" data-id="{{ component.id }}">{{ component.name }}</span>
+                        <ul>
+                            {% for child in component.enfants.all %}
+                                <li>
+                                    <span class="tree-item" data-id="{{ child.id }}">{{ child.name }}</span>
+                                    <ul>
+                                        {% for grandchild in child.enfants.all %}
+                                            <li>
+                                                <span class="tree-item" data-id="{{ grandchild.id }}">{{ grandchild.name }}</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </aside>
+
+    <!-- Contenu principal -->
+    <main class="content">
+        <!-- Nom du composant -->
+        <h2 id="component-name">Modèle 3D</h2>
+
+        <!-- Section pour afficher le modèle 3D -->
+        <section id="model-viewer-container">
+            {% if main_component and main_component.appareil_models3d.all %}
+                <model-viewer src="{{ main_component.appareil_models3d.first.model3D.url }}" camera-controls autoplay ar></model-viewer>
+            {% else %}
+                <div class="placeholder">
+                    <p>[Espace pour le modèle 3D]</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Bouton Fiche Technique -->
+        <button id="view-technical-sheet" class="technical-button" disabled>Fiche Technique</button>
+    </main>
+</div>
+</body>
+</html>
