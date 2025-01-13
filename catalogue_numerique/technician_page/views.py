@@ -179,7 +179,7 @@ def upload_and_search(request):
         os.remove(temp_image_path)
 
         # Vérifier si la similarité maximale dépasse 60 %
-        if matched_component and max_similarity >= 0.90:
+        if matched_component and max_similarity >= 0.95:
             return redirect("component_sheet", component_id=matched_component.id)
         else:
             return render(request, "technician_page/search.html", {
