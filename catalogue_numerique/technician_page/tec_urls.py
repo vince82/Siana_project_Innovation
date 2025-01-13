@@ -8,4 +8,9 @@ urlpatterns = [
     path('technician/component-sheet/<int:component_id>/', views.component_technical_sheet, name='component_sheet'),
     path('technician/search/', views.search_components, name='search_components'),
     path('technician/get-component-3d/<int:component_id>/', views.get_component_3d, name='get_component_3d'),
+    
+]
+
+urlpatterns=urlpatterns+[
+    path('technician/upload-and-search/', views.upload_and_search, name='upload_and_search'),
 ]
