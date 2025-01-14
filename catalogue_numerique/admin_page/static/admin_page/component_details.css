@@ -49,7 +49,7 @@ section.modifier-section h2 {
 /* Formulaires */
 form {
     margin-bottom: 20px;
-    text-align: center; /* Centrer tous les boutons */
+    /* text-align: center; Centrer tous les boutons changement de l'alignement du button */
 }
 
 form input[type="text"],
