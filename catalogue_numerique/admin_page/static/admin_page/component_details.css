@@ -3,13 +3,13 @@ body {
     font-family: 'Roboto', sans-serif; /* Police moderne et lisible */
     margin: 0;
     padding: 0;
-    background-color: #f4f4f9;
+    background-color: #9c9c9c;
     color: #333;
     line-height: 1.6;
 }
 
 header.modifier-header {
-    background-color: #2c3e50;
+    background-color: #abbaca;
     color: white;
     padding: 20px 40px;
     text-align: center;
@@ -64,7 +64,7 @@ form input[type="file"] {
     font-size: 1em;
     transition: border-color 0.3s;
 }
-jhjufuujufyitguiggguiqbjsjvjvjsjvjbejvjhesjhvbubfjvwjhvjeg
+jhjufuujufyi
 
 form input[type="text"]:focus,
 form textarea:focus,
