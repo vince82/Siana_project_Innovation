@@ -74,36 +74,57 @@ form input[type="file"]:focus {
     box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
 }
 
+/* General Button Styles */
 form button {
     padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1em;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
+    border-radius: 8px; /* Slightly more rounded corners for a modern feel */
+    font-size: 1em; /* Maintain consistent font size */
+    cursor: pointer; /* Interactive pointer */
+    font-weight: bold; /* Highlight button text */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transitions for interactivity */
 }
 
-/* Boutons Modifier et Supprimer */
+/* Modify Button */
 form .modify-btn {
-    background-color: #3498db; /* Bleu */
+    background-color: #3498db; /* Soft blue */
     color: white;
-    border: none;
-    margin-right: 10px;
+    border: none; /* Clean look */
+    margin-right: 10px; /* Spacing between buttons */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 form .modify-btn:hover {
-    background-color: #2980b9;
+    background-color: #2980b9; /* Darker blue for hover effect */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow for hover */
+    transform: translateY(-2px); /* Slight lift effect */
 }
 
+form .modify-btn:active {
+    background-color: #1c6ea4; /* Even darker blue for active state */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Reduced shadow for "pressed" effect */
+    transform: translateY(0); /* No lift when pressed */
+}
+
+/* Delete Button */
 form .delete-btn {
-    background-color: #e74c3c; /* Rouge */
+    background-color: #e74c3c; /* Soft red */
     color: white;
     border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 form .delete-btn:hover {
-    background-color: #c0392b;
+    background-color: #c0392b; /* Darker red for hover effect */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow for hover */
+    transform: translateY(-2px); /* Slight lift effect */
 }
+
+form .delete-btn:active {
+    background-color: #a93226; /* Even darker red for active state */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Reduced shadow for "pressed" effect */
+    transform: translateY(0); /* No lift when pressed */
+}
+
 
 /* Modèle 3D */
 #model-viewer-container {
